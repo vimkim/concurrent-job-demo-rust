@@ -65,10 +65,16 @@ fn main() {
             .unwrap();
     }
 
+    let mut result_flags = vec![false; arr.len()];
     let mut results = Vec::new();
     for _ in 0..arr.len() {
         let r = result_rx.recv().unwrap();
         println!("Job ID: {}, Final Value: {}", r.id, r.value);
+
+        result_flags[r.id as usize - 1] = true;
+
+        visualize_results(&result_flags);
+
         results.push(r);
     }
 
@@ -85,4 +91,18 @@ fn main() {
         h.join().unwrap();
     }
     println!("All workers have completed.");
+}
+
+fn visualize_results(flags: &[bool]) {
+    let symbols = flags
+        .iter()
+        .map(|&flag| if flag { "█" } else { "░" })
+        .collect::<String>();
+
+    println!(
+        "{}{}{}",
+        " ".repeat(4),
+        symbols,
+        format_args!(" ({} / {})", symbols.matches('█').count(), flags.len())
+    );
 }
